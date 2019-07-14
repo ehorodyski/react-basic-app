@@ -1,23 +1,33 @@
 import React, { Component } from 'react';
-import Axios from 'axios';
+import axios from 'axios';
+import SubmitAnswer from './SubmitAnswer';
+import auth0Client from '../Auth';
 
 class Question extends Component {
 
-  //#region Constructor
-
   constructor(props) {
     super(props);
-    this.state = { Question: null };
+    this.state = { question: null };
+    this.submitAnswer = this.submitAnswer.bind(this);
   }
 
-  //#endregion
-
-  //#region Lifecycle Events
-
   async componentDidMount() {
+    await this.refreshQuestion();
+  }
+
+  async refreshQuestion() {
     const { match: { params } } = this.props;
-    const question = (await Axios.get(`http://localhost:8081/${params.questionId}`)).data;
+    const question = (await axios.get(`http://localhost:8081/${params.questionId}`)).data;
     this.setState({ question });
+  }
+
+  async submitAnswer(answer) {
+    await axios.post(
+      `http://localhost:8081/answer/${this.state.question.id}`,
+      { answer },
+      { headers: { 'Authorization': `Bearer ${auth0Client.getIdToken()}` } }
+    );
+    await this.refreshQuestion();
   }
 
   render() {
@@ -30,6 +40,7 @@ class Question extends Component {
             <h1 className="display-3">{question.title}</h1>
             <p className="lead">{question.description}</p>
             <hr className="my-4" />
+            <SubmitAnswer questionId={question.id} submitAnswer={this.submitAnswer} />
             <p>Answers</p>
             {
               question.answers.map((answer, idx) => (
@@ -41,8 +52,6 @@ class Question extends Component {
       </div>
     );
   }
-
-  //#endregion
 
 }
 export default Question;
