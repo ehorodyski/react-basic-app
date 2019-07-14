@@ -30,7 +30,7 @@ const checkJwt = jwt({
   }),
   audience: 'Xh6g81j7KSg7S1EfhFoZDrJb1Kg6vEe0',
   issuer: `https://dev-7a5npqe4.auth0.com/`,
-  algorithms: ['RSA256']
+  algorithms: ['RS256']
 });
 
 //#endregion
